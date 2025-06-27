@@ -1,21 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
 using zapURL.Api.Dtos.Requests;
+using zapURL.Api.Services;
 
 namespace zapURL.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("")]
 public class UrlController : ControllerBase
 {
-    [HttpPost("shorten")]
-    public IActionResult ShortenUrl(ShortenUrlRequest request)
+    private readonly IShortenUrlService _shortenUrlService;
+
+    public UrlController(IShortenUrlService shortenUrlService)
     {
-        return Ok(request.LongUrl);
+        _shortenUrlService = shortenUrlService;
     }
 
-    [HttpGet]
+    [HttpPost("shorten")]
+    public async Task<IActionResult> ShortenUrl(ShortenUrlRequest request)
+    {
+        var shortenedCode = await _shortenUrlService.GenerateCodeAsync(request.LongUrl);
+        return CreatedAtAction(nameof(RedirectUrl), new { code = shortenedCode }, shortenedCode);
+    }
+
+    [HttpGet("{code}")]
     public IActionResult RedirectUrl(string code)
     {
-        return Ok(code);
+        var originalUrl = _shortenUrlService.GetByCodeAsync(code);
+        return Redirect(originalUrl);
     }
 }
