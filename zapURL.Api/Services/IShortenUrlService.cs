@@ -2,7 +2,7 @@ namespace zapURL.Api.Services;
 
 public interface IShortenUrlService
 {
-    Task<string> GenerateCodeAsync(string url);
+    Task<string> ShortenUrlAsync(string url);
 
     string GetByCodeAsync(string code);
 }

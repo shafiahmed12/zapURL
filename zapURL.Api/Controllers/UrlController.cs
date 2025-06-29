@@ -18,7 +18,7 @@ public class UrlController : ControllerBase
     [HttpPost("shorten")]
     public async Task<IActionResult> ShortenUrl(ShortenUrlRequest request)
     {
-        var shortenedCode = await _shortenUrlService.GenerateCodeAsync(request.LongUrl);
+        var shortenedCode = await _shortenUrlService.ShortenUrlAsync(request.LongUrl);
         return CreatedAtAction(nameof(RedirectUrl), new { code = shortenedCode }, shortenedCode);
     }
 
