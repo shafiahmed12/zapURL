@@ -1,10 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using zapURL.Api.Models;
 
 namespace zapURL.Api.Data;
 
-public class UrlDbContext : DbContext
+public class UrlDbContext(DbContextOptions<UrlDbContext> options) : DbContext(options)
 {
-    public UrlDbContext(DbContextOptions<UrlDbContext> options) : base(options)
-    {
-    }
+    public DbSet<ShortUrl> ShortUrls { get; set; } = null!;
 }

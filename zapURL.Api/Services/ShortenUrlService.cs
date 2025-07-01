@@ -1,23 +1,38 @@
+using zapURL.Api.Data;
+using zapURL.Api.Models;
 using zapURL.Api.Utilities;
 
 namespace zapURL.Api.Services;
 
 internal sealed class ShortenUrlService : IShortenUrlService
 {
-    private readonly Dictionary<string, string> _urls = new();
+    private readonly UrlDbContext _dbContext;
 
-    public Task<string> ShortenUrlAsync(string url)
+    public ShortenUrlService(UrlDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public async Task<string> ShortenUrlAsync(string url)
     {
         var code = CodeGenerator.GenerateCode();
+        var shortUrl = new ShortUrl
+        {
+            Id = Guid.CreateVersion7(),
+            OriginalUrl = url,
+            CreatedAt = DateTime.UtcNow,
+            Code = code
+        };
 
-        _urls.Add(code, url);
+        _dbContext.ShortUrls.Add(shortUrl);
 
-        return Task.FromResult(code);
+        await _dbContext.SaveChangesAsync();
+
+        return code;
     }
 
     public string GetByCodeAsync(string code)
     {
-        _urls.TryGetValue(code, out var url);
-        return url ?? string.Empty;
+        return _dbContext.ShortUrls.Where(x => x.Code == code).Select(x => x.OriginalUrl).First();
     }
 }
