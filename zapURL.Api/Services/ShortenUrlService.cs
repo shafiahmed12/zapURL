@@ -6,9 +6,9 @@ namespace zapURL.Api.Services;
 
 internal sealed class ShortenUrlService : IShortenUrlService
 {
-    private readonly UrlDbContext _dbContext;
+    private readonly ZapUrlDbContext _dbContext;
 
-    public ShortenUrlService(UrlDbContext dbContext)
+    public ShortenUrlService(ZapUrlDbContext dbContext)
     {
         _dbContext = dbContext;
     }
