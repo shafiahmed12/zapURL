@@ -1,15 +1,18 @@
+using System.Security.Cryptography;
+using System.Text;
+
 namespace zapURL.Api.Utilities;
 
 public static class CodeGenerator
 {
-    private const string AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private const string CodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private const int CodeLength = 8;
 
-    private static readonly Random Random = new();
-
-    public static string GenerateCode()
+    internal static string GenerateCode()
     {
-        var code = Enumerable.Range(0, 8).Select(_ => AlphaNumericString[Random.Next(AlphaNumericString.Length)])
-            .ToArray();
-        return string.Join("", code);
+        var randomBytes = RandomNumberGenerator.GetBytes(CodeLength);
+        var code = new StringBuilder("");
+        foreach (var randomByte in randomBytes) code.Append(CodeChars[randomByte % CodeChars.Length]);
+        return code.ToString();
     }
 }
