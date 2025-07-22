@@ -2,15 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using zapURL.Api.Data;
 using zapURL.Api.Data.Repositories.ShortenUrlRepository;
-using zapURL.Api.Services;
+using zapURL.Api.Services.UrlService;
 using zapURL.Api.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddDbContext<ZapUrlDbContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<ZapUrlDbContext>(options => { options.UseNpgsql(connectionString); });
 
 builder.Services.AddScoped<IUrlService, UrlService>();
 builder.Services.AddScoped<IShortUrlRepository, ShortUrlRepository>();
