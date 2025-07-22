@@ -9,7 +9,9 @@ using zapURL.Api.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var redisConnectionString = builder.Configuration.GetConnectionString("RedisCache");
 builder.Services.AddDbContext<ZapUrlDbContext>(options => { options.UseNpgsql(connectionString); });
+builder.Services.AddStackExchangeRedisCache(options => { options.Configuration = redisConnectionString; });
 
 builder.Services.AddScoped<IUrlService, UrlService>();
 builder.Services.AddScoped<IShortUrlRepository, ShortUrlRepository>();
@@ -18,7 +20,8 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddHealthChecks()
-    .AddNpgSql(connectionString);
+    .AddNpgSql(connectionString)
+    .AddRedis(redisConnectionString);
 
 builder.Services.AddControllers();
 
@@ -48,7 +51,5 @@ app.MapHealthChecks("health", new HealthCheckOptions
 });
 
 app.UseExceptionHandler();
-
 app.MapControllers();
-
 await app.RunAsync();

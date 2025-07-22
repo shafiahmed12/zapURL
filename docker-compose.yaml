@@ -4,11 +4,10 @@
     #        container_name: zapurl.api
     #        build:
     #            context: .
-    #            dockerfile: zapURL.Api/Dockerfile
+    #            dockerfile: ZapUrl.Api/Dockerfile
     #        ports:
-    #            - "5000:5000"
-    #            - "5001:5001"
-
+    #            - 5000:5000
+    
     zapurl.database:
         image: postgres:latest
         container_name: zapurl.database
@@ -19,7 +18,7 @@
         volumes:
             - ./.containers/zapurl-db:/var/lib/postgresql/data
         ports:
-            - "5432:5432"
+            - 5432:5432
     
     zapurl.pgadmin:
         image: elestio/pgadmin:latest
@@ -32,3 +31,11 @@
             - "8080:8080"
         volumes:
             - ./.containers/zapurl-pgadmin:/pgadmin4/servers.json
+    
+    zapurl.redis:
+        image: redis:latest
+        container_name: zapurl.redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - ./.containers/zapurl-redis:/data redis/redis-stack-server:latest
