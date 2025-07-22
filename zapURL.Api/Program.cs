@@ -1,3 +1,5 @@
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using zapURL.Api.Data;
@@ -14,6 +16,9 @@ builder.Services.AddScoped<IShortUrlRepository, ShortUrlRepository>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services.AddHealthChecks()
+    .AddNpgSql(connectionString);
 
 builder.Services.AddControllers();
 
@@ -36,9 +41,11 @@ app.MapScalarApiReference(options =>
     options.Theme = ScalarTheme.Mars;
     options.Title = "ZapUrl API Reference";
 });
-
-
 app.UseHttpsRedirection();
+app.MapHealthChecks("health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.UseExceptionHandler();
 

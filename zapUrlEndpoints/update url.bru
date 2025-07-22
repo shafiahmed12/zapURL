@@ -1,0 +1,11 @@
+meta {
+  name: update url
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://{{host}}/urls/{{id}}
+  body: json
+  auth: inherit
+}

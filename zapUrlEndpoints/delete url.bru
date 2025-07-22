@@ -1,0 +1,11 @@
+meta {
+  name: delete url
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://{{host}}/urls/{{id}}
+  body: none
+  auth: inherit
+}
