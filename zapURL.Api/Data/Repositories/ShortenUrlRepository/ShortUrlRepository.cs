@@ -1,5 +1,6 @@
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using zapURL.Api.Errors;
 using zapURL.Api.Models;
 
@@ -8,12 +9,10 @@ namespace zapURL.Api.Data.Repositories.ShortenUrlRepository;
 internal class ShortUrlRepository : IShortUrlRepository
 {
     private readonly ZapUrlDbContext _dbContext;
-    private readonly ILogger<ShortUrlRepository> _logger;
 
-    public ShortUrlRepository(ZapUrlDbContext dbContext, ILogger<ShortUrlRepository> logger)
+    public ShortUrlRepository(ZapUrlDbContext dbContext)
     {
         _dbContext = dbContext;
-        _logger = logger;
     }
 
     public async Task<ErrorOr<string>> GetOriginalUrlAsync(string code)
@@ -25,7 +24,7 @@ internal class ShortUrlRepository : IShortUrlRepository
             .FirstOrDefaultAsync();
 
         if (originalUrl is not null) return originalUrl;
-        _logger.LogError("OriginalUrl for code: {Code} not found", code);
+        Log.Error("OriginalUrl for code: {Code} not found", code);
         return ShortUrlErrors.UrlNotFoundError;
     }
 
@@ -35,7 +34,7 @@ internal class ShortUrlRepository : IShortUrlRepository
         var exists = await _dbContext.ShortUrls.AnyAsync(x => x.Code == shortUrl.Code);
         if (exists)
         {
-            _logger.LogError("short url code: {Code} already exists", shortUrl.Code);
+            Log.Error("short url code: {Code} already exists", shortUrl.Code);
             return ShortUrlErrors.CodeExists;
         }
 

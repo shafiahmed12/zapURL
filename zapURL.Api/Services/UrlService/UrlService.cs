@@ -1,6 +1,7 @@
 using System.Text.Json;
 using ErrorOr;
 using Microsoft.Extensions.Caching.Distributed;
+using Serilog;
 using zapURL.Api.Data.Repositories.ShortenUrlRepository;
 using zapURL.Api.Models;
 using zapURL.Api.Utilities;
@@ -10,13 +11,11 @@ namespace zapURL.Api.Services.UrlService;
 internal class UrlService : IUrlService
 {
     private readonly IDistributedCache _cache;
-    private readonly ILogger<UrlService> _logger;
     private readonly IShortUrlRepository _shortUrlRepository;
 
-    public UrlService(IShortUrlRepository shortUrlRepository, ILogger<UrlService> logger, IDistributedCache cache)
+    public UrlService(IShortUrlRepository shortUrlRepository, IDistributedCache cache)
     {
         _shortUrlRepository = shortUrlRepository;
-        _logger = logger;
         _cache = cache;
     }
 
@@ -39,7 +38,14 @@ internal class UrlService : IUrlService
     {
         var cachedResult = await _cache.GetStringAsync("All");
 
-        if (cachedResult is not null) return JsonSerializer.Deserialize<List<ShortUrl>>(cachedResult);
+        if (cachedResult is not null)
+        {
+            var urls = JsonSerializer.Deserialize<List<ShortUrl>>(cachedResult);
+            if (urls is not null) return urls;
+
+            Log.Error("Failed to Failed to deserialize cached short URLs {Urls}.", new { cachedResult });
+            return Error.Failure("DeserializationError", "Failed to deserialize cached short URLs.");
+        }
 
         var result = await _shortUrlRepository.GetAllShortUrlsAsync();
 
@@ -61,7 +67,7 @@ internal class UrlService : IUrlService
             CreatedAt = DateTime.UtcNow
         });
         if (result.IsError) return result.Errors;
-        _logger.LogInformation("created short url with code: {Code} and originalURl: {OriginalUrl}", result.Value,
+        Log.Information("created short url with code: {Code} and originalURl: {OriginalUrl}", result.Value,
             originalUrl);
         await _cache.RemoveAsync("All");
         return result.Value;
@@ -71,10 +77,9 @@ internal class UrlService : IUrlService
     {
         var result = await _shortUrlRepository.UpdateUrlAsync(id, originalUrl);
         if (result.IsError) return result.Errors;
-        _logger.LogInformation("updated short url with Id: {Id} code: {Code} and originalURl: {Original}", id,
-            result.Value, originalUrl);
+        Log.Information("updated short url with Id: {Id} code: {Code} and originalURl: {Original}", id, result.Value,
+            originalUrl);
         await _cache.RemoveAsync("All");
-        await _cache.RemoveAsync(result.Value);
         return result.Value;
     }
 
@@ -82,7 +87,7 @@ internal class UrlService : IUrlService
     {
         var result = await _shortUrlRepository.DeleteAsync(id);
         if (result.IsError) return result.Errors;
-        _logger.LogInformation("Deleted short url with Id: {Id} and code: {Code}", id, result.Value);
+        Log.Information("Deleted short url with Id: {Id} and code: {Code}", id, result.Value);
         await _cache.RemoveAsync("All");
         await _cache.RemoveAsync(result.Value);
         return result.Value;

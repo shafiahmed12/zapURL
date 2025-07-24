@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using zapURL.Api.Dtos;
 using zapURL.Api.Dtos.Requests;
 using zapURL.Api.Errors;
@@ -9,13 +10,11 @@ namespace zapURL.Api.Controllers;
 [Route("urls")]
 public class UrlController : BaseController
 {
-    private readonly ILogger<UrlController> _logger;
     private readonly IUrlService _urlService;
 
-    public UrlController(IUrlService urlService, ILogger<UrlController> logger)
+    public UrlController(IUrlService urlService)
     {
         _urlService = urlService;
-        _logger = logger;
     }
 
     [HttpPost("shorten")]
@@ -23,7 +22,7 @@ public class UrlController : BaseController
     {
         if (!Uri.TryCreate(request.Url, UriKind.Absolute, out var url))
         {
-            _logger.LogError("Provided url is invalid {Url}", request.Url);
+            Log.Error("Provided url is invalid {Url}", request.Url);
             return Problem([ShortUrlErrors.InvalidUrl]);
         }
 
@@ -38,7 +37,7 @@ public class UrlController : BaseController
     {
         if (string.IsNullOrWhiteSpace(code))
         {
-            _logger.LogError("Code cannot be empty");
+            Log.Error("Code cannot be empty");
             return Problem([ShortUrlErrors.EmptyCode]);
         }
 
@@ -68,7 +67,7 @@ public class UrlController : BaseController
     {
         if (id == Guid.Empty)
         {
-            _logger.LogError("Invalid Id: {Id}", id);
+            Log.Error("Invalid Id: {Id}", id);
             return Problem([ShortUrlErrors.InvalidId]);
         }
 
@@ -84,7 +83,7 @@ public class UrlController : BaseController
     {
         if (id == Guid.Empty)
         {
-            _logger.LogError("Invalid Id: {Id}", id);
+            Log.Error("Invalid Id: {Id}", id);
             return Problem([ShortUrlErrors.InvalidId]);
         }
 
