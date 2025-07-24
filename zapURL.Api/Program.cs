@@ -1,32 +1,20 @@
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using zapURL.Api.Data;
-using zapURL.Api.Data.Repositories.ShortenUrlRepository;
-using zapURL.Api.Services.UrlService;
+using zapURL.Api.Extensions;
 using zapURL.Api.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-var redisConnectionString = builder.Configuration.GetConnectionString("RedisCache");
-builder.Services.AddDbContext<ZapUrlDbContext>(options => { options.UseNpgsql(connectionString); });
-builder.Services.AddStackExchangeRedisCache(options => { options.Configuration = redisConnectionString; });
 
-builder.Services.AddScoped<IUrlService, UrlService>();
-builder.Services.AddScoped<IShortUrlRepository, ShortUrlRepository>();
+builder.Host.AddSerilog();
 
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
-
-builder.Services.AddHealthChecks()
-    .AddNpgSql(connectionString)
-    .AddRedis(redisConnectionString);
+builder.Services
+    .AddInfrastructure(builder.Configuration)
+    .AddApplication(builder.Configuration);
 
 builder.Services.AddControllers();
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

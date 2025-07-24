@@ -74,6 +74,7 @@ internal class UrlService : IUrlService
         _logger.LogInformation("updated short url with Id: {Id} code: {Code} and originalURl: {Original}", id,
             result.Value, originalUrl);
         await _cache.RemoveAsync("All");
+        await _cache.RemoveAsync(result.Value);
         return result.Value;
     }
 
