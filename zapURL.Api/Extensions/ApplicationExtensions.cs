@@ -1,3 +1,9 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using zapURL.Api.Configurations;
+using zapURL.Api.Infrastructure.AuthClient;
+using zapURL.Api.Services.JwksService;
 using zapURL.Api.Services.UrlService;
 using zapURL.Api.Utilities;
 
@@ -9,8 +15,14 @@ public static class ApplicationExtensions
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         var redisConnectionString = configuration.GetConnectionString("RedisCache");
+        var stackAuthSettings = configuration.GetSection(StackAuthSettings.SectionName)!;
+        services.AddHttpClient();
+        services.Configure<StackAuthSettings>(stackAuthSettings);
 
+        services.AddSingleton<IJwksService, JwksService>();
         services.AddScoped<IUrlService, UrlService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
         if (connectionString != null && redisConnectionString != null)
@@ -18,6 +30,44 @@ public static class ApplicationExtensions
                 .AddNpgSql(connectionString)
                 .AddRedis(redisConnectionString);
 
+        ConfigureTypedHttpClient(services, stackAuthSettings.Get<StackAuthSettings>()!);
+
         return services;
+    }
+
+    private static void ConfigureTypedHttpClient(this IServiceCollection services, StackAuthSettings stackAuthSettings)
+    {
+        services.AddHttpClient<IStackAuthClient, StackAuthClient>(httpClient =>
+        {
+            httpClient.BaseAddress = new Uri(StackAuthSettings.BaseAddress);
+            httpClient.DefaultRequestHeaders.Add(StackAuthSettings.AccessTypeHeader, stackAuthSettings.AccessType);
+            httpClient.DefaultRequestHeaders.Add(StackAuthSettings.ProjectIdHeader, stackAuthSettings.ProjectId);
+            httpClient.DefaultRequestHeaders.Add(StackAuthSettings.SecretServerKeyHeader,
+                stackAuthSettings.SecretServerKey);
+        });
+    }
+
+    private static void ConfigureAuthentication(this IServiceCollection services, StackAuthSettings stackAuthSettings)
+    {
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(async options =>
+            {
+                var jwksService = services.BuildServiceProvider().GetRequiredService<IJwksService>();
+                var jwks = await jwksService.GetJwksAsync();
+                options.Authority = stackAuthSettings.Authority;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = StackAuthSettings.ValidIssuer,
+                    ValidAudience = stackAuthSettings.ProjectId,
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = jwks.Keys[0]
+                };
+            });
     }
 }

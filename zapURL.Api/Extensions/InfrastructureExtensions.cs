@@ -15,7 +15,7 @@ public static class InfrastructureExtensions
         return services;
     }
 
-    public static void AddRedis(this IServiceCollection services, IConfiguration configuration)
+    private static void AddRedis(this IServiceCollection services, IConfiguration configuration)
     {
         var redisConnectionString = configuration.GetConnectionString("RedisCache");
         services.AddStackExchangeRedisCache(options => { options.Configuration = redisConnectionString; });
