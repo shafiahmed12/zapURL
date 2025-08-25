@@ -49,24 +49,28 @@ public static class ApplicationExtensions
 
     private static void ConfigureAuthentication(this IServiceCollection services, StackAuthSettings stackAuthSettings)
     {
+        // Register the handler
         services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer();
+
+        services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+            .Configure<IJwksService>((jwtBearerOptions, jwksService) =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(async options =>
-            {
-                var jwksService = services.BuildServiceProvider().GetRequiredService<IJwksService>();
-                var jwks = await jwksService.GetJwksAsync();
-                options.Authority = stackAuthSettings.Authority;
-                options.TokenValidationParameters = new TokenValidationParameters
+                jwtBearerOptions.Authority = stackAuthSettings.Authority;
+                var jwks = jwksService.GetJwksAsync().GetAwaiter().GetResult();
+
+                jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = StackAuthSettings.ValidIssuer,
                     ValidAudience = stackAuthSettings.ProjectId,
-                    ValidateAudience = true,
                     ValidateIssuer = true,
+                    ValidateAudience = true,
                     ValidateLifetime = true,
-                    IssuerSigningKey = jwks.Keys[0]
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKeys = jwks.Keys
                 };
             });
     }

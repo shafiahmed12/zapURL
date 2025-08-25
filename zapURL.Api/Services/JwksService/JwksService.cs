@@ -22,14 +22,16 @@ public class JwksService(
         try
         {
             using var client = _httpClientFactory.CreateClient();
-            var response = await client.GetStringAsync($"{StackAuthSettings.BaseAddress}/api/v1/projects/{_stackAuthSettings.ProjectId}/.well-known/jwks.json");
+            var response = await client.GetStringAsync(
+                $"{StackAuthSettings.BaseAddress}/api/v1/projects/{_stackAuthSettings.ProjectId}/.well-known/jwks.json");
 
-            var jwks = JsonSerializer.Deserialize<JsonWebKeySet>(response);
-            if (jwks is null)
+            var jwks = new JsonWebKeySet(response);
+            if (jwks.Keys is null || jwks.Keys.Count == 0)
             {
-                Log.Error("Deserialized JWKS is null.");
-                throw new InvalidOperationException("Deserialized JWKS is null.");
+                Log.Error("Fetched JWKS contains no keys.");
+                throw new InvalidOperationException("Fetched JWKS contains no keys.");
             }
+
             _jwks = jwks;
             return _jwks;
         }
