@@ -2,7 +2,7 @@ using System.Text.Json;
 using ErrorOr;
 using Microsoft.Extensions.Caching.Distributed;
 using Serilog;
-using zapURL.Api.Data.Repositories.ShortenUrlRepository;
+using zapURL.Api.Infrastructure.Repositories.ShortenUrlRepository;
 using zapURL.Api.Models;
 using zapURL.Api.Utilities;
 

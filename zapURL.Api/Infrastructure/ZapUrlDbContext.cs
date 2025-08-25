@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using zapURL.Api.Models;
 
-namespace zapURL.Api.Data;
+namespace zapURL.Api.Infrastructure;
 
 public class ZapUrlDbContext : DbContext
 {

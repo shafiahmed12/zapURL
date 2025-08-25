@@ -1,8 +1,8 @@
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
-using zapURL.Api.Data;
 using zapURL.Api.Extensions;
+using zapURL.Api.Infrastructure;
 using zapURL.Api.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -4,7 +4,7 @@ using Serilog;
 using zapURL.Api.Errors;
 using zapURL.Api.Models;
 
-namespace zapURL.Api.Data.Repositories.ShortenUrlRepository;
+namespace zapURL.Api.Infrastructure.Repositories.ShortenUrlRepository;
 
 internal class ShortUrlRepository : IShortUrlRepository
 {

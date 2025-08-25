@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using zapURL.Api.Data;
-using zapURL.Api.Data.Repositories.ShortenUrlRepository;
+using zapURL.Api.Infrastructure;
+using zapURL.Api.Infrastructure.Repositories.ShortenUrlRepository;
 
 namespace zapURL.Api.Extensions;
 

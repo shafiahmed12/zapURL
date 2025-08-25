@@ -35,4 +35,9 @@
         <Compile Remove="Migrations\20250722190059_AddRowVersionColumn.Designer.cs"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="Contracts\Authentication\"/>
+        <Folder Include="Contracts\Requests\"/>
+    </ItemGroup>
+
 </Project>

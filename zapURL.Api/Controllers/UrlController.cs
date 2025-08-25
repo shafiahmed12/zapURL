@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using zapURL.Api.Dtos;
-using zapURL.Api.Dtos.Requests;
+using zapURL.Api.Contracts.ShortUrl;
 using zapURL.Api.Errors;
 using zapURL.Api.Services.UrlService;
 

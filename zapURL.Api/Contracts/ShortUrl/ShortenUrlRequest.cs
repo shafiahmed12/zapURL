@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace zapURL.Api.Dtos.Requests;
+namespace zapURL.Api.Contracts.ShortUrl;
 
 public record ShortenUrlRequest(
     [Required] [Url] string Url);

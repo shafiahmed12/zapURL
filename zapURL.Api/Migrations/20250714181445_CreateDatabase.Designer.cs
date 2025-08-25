@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using zapURL.Api.Data;
-
+using zapURL.Api.Infrastructure;
 #nullable disable
 
 namespace zapURL.Api.Migrations
