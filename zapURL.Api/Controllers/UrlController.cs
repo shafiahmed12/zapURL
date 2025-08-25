@@ -7,14 +7,9 @@ using zapURL.Api.Services.UrlService;
 namespace zapURL.Api.Controllers;
 
 [Route("urls")]
-public class UrlController : BaseController
+public class UrlController(IUrlService urlService) : BaseController
 {
-    private readonly IUrlService _urlService;
-
-    public UrlController(IUrlService urlService)
-    {
-        _urlService = urlService;
-    }
+    private readonly IUrlService _urlService = urlService;
 
     [HttpPost("shorten")]
     public async Task<IActionResult> ShortenUrl(ShortenUrlRequest request)
