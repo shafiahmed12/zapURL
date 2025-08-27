@@ -31,7 +31,7 @@ public static class ApplicationExtensions
                 .AddRedis(redisConnectionString);
 
         ConfigureTypedHttpClient(services, stackAuthSettings.Get<StackAuthSettings>()!);
-
+        ConfigureAuthentication(services, stackAuthSettings.Get<StackAuthSettings>()!);
         return services;
     }
 
