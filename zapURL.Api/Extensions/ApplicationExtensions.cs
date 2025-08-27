@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using zapURL.Api.Configurations;
 using zapURL.Api.Infrastructure.AuthClient;
+using zapURL.Api.Services.AuthenticationService;
 using zapURL.Api.Services.JwksService;
 using zapURL.Api.Services.UrlService;
 using zapURL.Api.Utilities;
@@ -31,7 +31,7 @@ public static class ApplicationExtensions
                 .AddRedis(redisConnectionString);
 
         ConfigureTypedHttpClient(services, stackAuthSettings.Get<StackAuthSettings>()!);
-
+        ConfigureAuthentication(services, stackAuthSettings.Get<StackAuthSettings>()!);
         return services;
     }
 
