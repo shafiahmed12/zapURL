@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using zapURL.Api.Infrastructure;
 using zapURL.Api.Infrastructure.Repositories.ShortenUrlRepository;
+using zapURL.Api.Infrastructure.Repositories.UserRepository;
 
 namespace zapURL.Api.Extensions;
 
@@ -11,6 +12,7 @@ public static class InfrastructureExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<ZapUrlDbContext>(options => { options.UseNpgsql(connectionString); });
         services.AddScoped<IShortUrlRepository, ShortUrlRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddRedis(configuration);
         return services;
     }
